@@ -1,0 +1,271 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Dec  6 22:36:35 2022
+
+@author: Hideki
+"""
+
+import tkinter
+from tkinter import ttk
+import random
+import tkinter.messagebox
+import datetime
+import time
+from tkinter import messagebox
+from tkinter import *
+import mysql.connector
+import tkinter as tk
+from tkinter.messagebox import showinfo
+
+        
+connection = mysql.connector.connect(host='localhost', user='root', password='123qwe',
+                                     port='3306', database='communitypantryrecords')
+c = connection.cursor()
+
+def enter_data():
+    accepted = accept_var.get()
+    
+    if accepted=="Accepted":
+        # User info
+        userid = user_id_entry.get()
+        firstname = first_name_entry.get()
+        lastname = last_name_entry.get()
+        middle = middle_initial_entry.get()
+        age = age_spinbox.get()
+        gender = gender_combobox.get()
+        option = option_combobox.get()
+        
+        
+        if userid and firstname and lastname and age and gender and option:
+
+            
+            insert_query = "INSERT INTO `users`(`id`, `firstname`, `lastname`, `middle`, `age`, `gender`, `option`) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+            vals = (userid,firstname,lastname,middle,age,gender,option)
+            c.execute(insert_query,vals)
+            connection.commit()
+            
+            print("ID: ", userid, "First name: ", firstname, "Last name: ", lastname)
+            print("Age: ", age, "Gender: ", gender, "Option: ", option)
+    
+            tkinter.messagebox.showinfo(title="Successful", message= "Please select confirm")
+                
+        else:
+            tkinter.messagebox.showwarning(title="Error", message="Please fill up the form")
+    else:
+       tkinter.messagebox.showwarning(title= "Error", message="You have not accepted the terms")
+        
+window = tkinter.Tk()
+window.title("Community Pantry Form")
+window.geometry ("700x400")
+frame = tkinter.Frame(window)
+frame.pack()
+
+# Saving User Info
+user_info_frame =tkinter.LabelFrame(frame, text="Personal Information")
+user_info_frame.grid(row= 0, column=0, padx=30, pady=10)
+
+userid_label = tkinter.Label(user_info_frame, text="ID")
+userid_label.grid(row=0, column=3)
+user_id_entry = tkinter.Entry(user_info_frame)
+user_id_entry.grid(row=1, column=3)
+
+first_name_label = tkinter.Label(user_info_frame, text="First Name")
+first_name_label.grid(row=0, column=0)
+last_name_label = tkinter.Label(user_info_frame, text="Last Name")
+last_name_label.grid(row=0, column=1)
+
+first_name_entry = tkinter.Entry(user_info_frame)
+last_name_entry = tkinter.Entry(user_info_frame)
+middle_initial_entry = tkinter.Entry(user_info_frame)
+#option_entry = tkinter.Entry(user_info_frame)
+first_name_entry.grid(row=1, column=0)
+last_name_entry.grid(row=1, column=1)
+middle_initial_entry.grid(row=1, column=2)
+#option_entry.grid(row=3, column=2)
+
+middle_initial = tkinter.Label(user_info_frame, text="Middle Initial")
+middle_initial.grid(row=2, column=0)
+middle_initial.grid(row=0, column=2)
+
+age_label = tkinter.Label(user_info_frame, text="Age")
+age_spinbox = tkinter.Spinbox(user_info_frame, from_=1, to=110)
+age_label.grid(row=2, column=0)
+age_spinbox.grid(row=3, column=0)
+
+gender_label = tkinter.Label(user_info_frame, text="Gender")
+gender_combobox = ttk.Combobox(user_info_frame, values=["Male", "Female", "Others", "Rather not say"])
+gender_label.grid(row=2, column=1)
+gender_combobox.grid(row=3, column=1)
+
+#option = tkinter.Label(user_info_frame, text="Option")
+#option.grid(row=2, column=2)
+
+option_label = tkinter.Label(user_info_frame, text="Option")
+option_combobox = ttk.Combobox(user_info_frame, values=["Donator", "Receiver"])
+option_label.grid(row=2, column=2)
+option_combobox.grid(row=3, column=2)
+
+for widget in user_info_frame.winfo_children():
+    widget.grid_configure(padx=10, pady=5)
+
+terms_frame = tkinter.LabelFrame(frame, text="Terms & Conditions")
+terms_frame.grid(row=2, column=0, sticky="news", padx=20, pady=10)
+
+accept_var = tkinter.StringVar(value="Not Accepted")
+terms_check = tkinter.Checkbutton(terms_frame, text= "I accept the terms and conditions.",
+                                  variable=accept_var, onvalue="Accepted", offvalue="Not Accepted")
+terms_check.grid(row=0, column=0)
+
+
+
+
+# Button
+def prevPage():
+    import projectDBMS
+button = tkinter.Button(frame, text="Submit form", command=enter_data)
+button.grid(row=3, column=0, sticky="news", padx=10, pady=10)
+
+
+def iExit():
+    iExit = tkinter.messagebox.askyesno("Warning", "Proceed to next window?")
+    if iExit > 0:
+        window.destroy()
+        return
+    
+# Button
+def confirmPage():
+    import projectDBMS
+button = tkinter.Button(frame, text="Confirm", command=iExit)
+button.grid(row=4, column=0, sticky="news", padx=10, pady=10)
+
+window.mainloop()
+
+
+#window2
+class MainWindow():
+    def __init__(self, root):
+        self.root = root
+        self.root.geometry("830x480")
+        self.root.title("Community Pantry Inventory")
+
+        itemName = tk.StringVar()
+        quantity = tk.StringVar()
+        itemid = tk.StringVar()
+        # FRAMES
+        MainFrame = Frame(root, bd=12, width=1340, height=700, bg="#00154f")
+        MainFrame.grid()
+        RightFrame = Frame(MainFrame, bd=0, width=300, height=300, bg="#00154f")
+        RightFrame.grid(row=1, column=1)
+        TitleFrame = tk.Frame(RightFrame, bd=11, width=1340, height=100, bg="#00154f")
+        TitleFrame.grid(row=0, column=0)
+        ClientDetailsFrame = Frame(RightFrame, bd=1, width=1040, height=180, padx=6, pady=4, bg="#00154f")
+        ClientDetailsFrame.grid(row=1, column=0)
+        TreeviewFrame = Frame(MainFrame, bd=15, width=300, height=300, padx=6, bg="#00154f")
+        TreeviewFrame.grid(row=1, column=0)
+        ButtonFrame = Frame(RightFrame, bd=7, width=140, height=100, bg="#00154f")
+        ButtonFrame.grid(row=2, column=0)
+        LblTitle = Label(TitleFrame, bg="#00154f", font=('Roboto', 30, 'bold'), text="Inventory Management", bd=1, fg = "Khaki1")
+        LblTitle.grid(row=0, column=0)
+        Labelid = Label(ClientDetailsFrame, bg="#00154f" , font=('Roboto', 16), text="Item ID", bd=7, width=15, fg = "Khaki1")
+        Labelid.grid(row=1, column=0, sticky=W, padx=5)
+        Textid = Entry(ClientDetailsFrame, font=('Roboto', 16), bd=7, width=19, justify=LEFT,
+                             textvariable=itemid)
+        Textid.grid(row=1, column=1)
+        
+        Labelitem = Label(ClientDetailsFrame, bg="#00154f" , font=('Roboto', 16), text="Item Name", bd=7, width=15, fg = "Khaki1")
+        Labelitem.grid(row=2, column=0, sticky=W, padx=5)
+        Textitem = Entry(ClientDetailsFrame, font=('Roboto', 16), bd=7, width=19, justify=LEFT,
+                             textvariable=itemName)
+        Textitem.grid(row=2, column=1)
+
+        Labelqty = Label(ClientDetailsFrame, bg="#00154f", font=('Roboto', 16), text="Quantity", bd=7, width=15, fg = "Khaki1")
+        Labelqty.grid(row=3, column=0, sticky=W, padx=5)
+        Textqty = Entry(ClientDetailsFrame, font=('Roboto', 16), bd=7, width=19, justify=LEFT,
+                           textvariable=quantity)
+        Textqty.grid(row=3, column=1)
+
+       
+
+        def DisplayRecord():
+            con = mysql.connector.connect(host="localhost", user="root", password="123qwe", database="communitypantryrecords")
+            c.execute("SELECT itemid, itemName, quantity FROM inventory INNER JOIN users ON inventory.itemid = users.id ORDER BY itemid")
+            result = c.fetchall()
+            if len(result)!=0:
+                self.show_records.delete(*self.show_records.get_children())
+                for row in result:
+                    self.show_records.insert('', END, values=row)
+                    con.commit()
+                con.close()
+
+        def combine_funcs(*funcs):
+            def inner_combined_func(*args, **kwargs):
+                for f in funcs:
+                    f(*args, **kwargs)
+
+            return inner_combined_func
+
+        def insert():
+            i_id = itemid.get()
+            name = itemName.get()
+            qty = quantity.get()
+            
+            insert_query = "INSERT INTO `inventory`(`itemid`, `itemName`, `quantity`) VALUES (%s,%s,%s)"
+            vals = (i_id, name, qty)
+            c.execute(insert_query,vals)
+            connection.commit()
+            DisplayRecord()
+            
+
+        def delete():
+            i_id = itemid.get()
+            
+            con = mysql.connector.connect(host="localhost", user="root", password="123qwe", database="communitypantryrecords")
+            c.execute("DELETE FROM inventory WHERE itemid ='" + i_id + "'")
+            c.execute("COMMIT")
+
+            DisplayRecord()
+            con.close()
+
+
+        def update():
+            
+            name = itemName.get()
+            qty = quantity.get()
+            i_id = itemid.get()
+            con = mysql.connector.connect(host="localhost", user="root", password="123qwe", database="communitypantryrecords")
+            c.execute("UPDATE inventory SET itemName ='" + name + "', quantity ='" + qty + "' WHERE itemid ='" + i_id + "'")
+            c.execute("COMMIT")
+
+            DisplayRecord()
+            con.close()
+
+        self.btnAddClient = Button(ButtonFrame, pady=5, padx=12, bd=4, font=('Roboto', 12), width=5,
+                                  height=1, text="Add Item", bg="white", command=insert)
+        self.btnAddClient.grid(row=5, column=0, padx=9)
+    
+        self.btnUpdateEvent = Button(ButtonFrame, pady=5, padx=12, bd=4, font=('Roboto', 12), width=5,
+                                     height=1, text="Update", bg="white", command=update)
+        self.btnUpdateEvent.grid(row=5, column=1, padx=9)
+
+        self.btnDeleteEvent = Button(ButtonFrame, pady=5, padx=12, bd=4, font=('Roboto', 12), width=5,
+                                  height=1, text="Delete", bg="white", command=delete)
+        self.btnDeleteEvent.grid(row=5, column=3, padx=9)
+        vertical_scroll = Scrollbar(TreeviewFrame, orient=VERTICAL)
+        self.show_records = ttk.Treeview(TreeviewFrame, height=20, columns=("itemid", "itemName", "quantity"),
+                                         yscrollcommand=vertical_scroll.set)
+        vertical_scroll.pack(side=RIGHT, fill=Y)
+        self.show_records.heading("itemid", text="ID")
+        self.show_records.heading("itemName", text="Item Name")
+        self.show_records.heading("quantity", text="Quantity")
+        self.show_records['show'] = 'headings'
+        self.show_records.column("itemid", width=35)
+        self.show_records.column("itemName", width=150)
+        self.show_records.column("quantity", width=100)
+        self.show_records.pack(fill=BOTH, expand=1)
+        self.show_records.bind("<ButtonRelease-1>")
+        DisplayRecord()
+
+if __name__ == '__main__':
+    root = Tk()
+    application = MainWindow(root)
+    root.mainloop()
